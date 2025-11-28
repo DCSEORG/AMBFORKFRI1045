@@ -1,0 +1,40 @@
+# Build directories
+bin/
+obj/
+out/
+publish/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
+.env
+venv/
+
+# Allow app.zip for deployment
+!app.zip

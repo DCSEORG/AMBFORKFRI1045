@@ -1,0 +1,149 @@
+@page
+@model ApproveModel
+@{
+    ViewData["Title"] = "Approve Expenses";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-6">
+            <i class="bi bi-check-circle text-warning"></i> 
+            Approve Expenses
+        </h1>
+        <p class="text-muted">Review and approve pending expense claims</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Pending Expenses</h5>
+            </div>
+            <div class="col-auto">
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <label class="form-label mb-0 text-muted small">Filter:</label>
+                    <select name="categoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        @foreach (var category in Model.Categories ?? Enumerable.Empty<ExpenseManagement.Models.ExpenseCategory>())
+                        {
+                            <option value="@category.CategoryName" selected="@(Model.CategoryFilter == category.CategoryName)">
+                                @category.CategoryName
+                            </option>
+                        }
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>
+                            <input type="checkbox" class="form-check-input" id="selectAll" onclick="toggleAll(this)" />
+                        </th>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Submitted By</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PendingExpenses != null && Model.PendingExpenses.Any())
+                    {
+                        @foreach (var expense in Model.PendingExpenses)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input expense-checkbox" value="@expense.ExpenseId" />
+                                </td>
+                                <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@expense.CategoryName</span>
+                                </td>
+                                <td>@expense.UserName</td>
+                                <td>@(expense.Description ?? "-")</td>
+                                <td><strong>£@expense.AmountGBP.ToString("F2")</strong></td>
+                                <td>
+                                    <form method="post" asp-page-handler="Approve" class="d-inline">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="reviewerId" value="@Model.SelectedReviewerId" />
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Reject" class="d-inline">
+                                        <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                        <input type="hidden" name="reviewerId" value="@Model.SelectedReviewerId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+                                No pending expenses to approve
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.PendingExpenses != null && Model.PendingExpenses.Any())
+    {
+        <div class="card-footer bg-transparent">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Approving as:</label>
+                    <select id="reviewerSelect" class="form-select form-select-sm">
+                        @foreach (var manager in Model.Managers ?? Enumerable.Empty<ExpenseManagement.Models.User>())
+                        {
+                            <option value="@manager.UserId" selected="@(manager.UserId == Model.SelectedReviewerId)">
+                                @manager.UserName
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-8 text-end">
+                    <button type="button" class="btn btn-success" onclick="approveSelected()">
+                        <i class="bi bi-check-all"></i> Approve Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function toggleAll(source) {
+            var checkboxes = document.querySelectorAll('.expense-checkbox');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = source.checked;
+            });
+        }
+
+        function approveSelected() {
+            var selected = [];
+            document.querySelectorAll('.expense-checkbox:checked').forEach(function(checkbox) {
+                selected.push(checkbox.value);
+            });
+            if (selected.length === 0) {
+                alert('Please select at least one expense to approve.');
+                return;
+            }
+            alert('Bulk approve functionality - ' + selected.length + ' expenses selected.');
+        }
+    </script>
+}

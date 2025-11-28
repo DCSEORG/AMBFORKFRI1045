@@ -1,0 +1,133 @@
+@page
+@model ExpensesModel
+@{
+    ViewData["Title"] = "Expenses";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-6">
+            <i class="bi bi-list-ul text-primary"></i> 
+            Expenses
+        </h1>
+        <p class="text-muted">View and manage your expenses</p>
+    </div>
+    <div class="col-auto">
+        <a asp-page="/AddExpense" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Add Expense
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Status Filter</label>
+                <select name="statusFilter" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    @foreach (var status in Model.Statuses ?? Enumerable.Empty<ExpenseManagement.Models.ExpenseStatus>())
+                    {
+                        <option value="@status.StatusName" selected="@(Model.StatusFilter == status.StatusName)">
+                            @status.StatusName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Category Filter</label>
+                <select name="categoryFilter" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    @foreach (var category in Model.Categories ?? Enumerable.Empty<ExpenseManagement.Models.ExpenseCategory>())
+                    {
+                        <option value="@category.CategoryName" selected="@(Model.CategoryFilter == category.CategoryName)">
+                            @category.CategoryName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <a asp-page="/Expenses" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Expenses != null && Model.Expenses.Any())
+                    {
+                        @foreach (var expense in Model.Expenses)
+                        {
+                            <tr>
+                                <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@expense.CategoryName</span>
+                                </td>
+                                <td>@(expense.Description ?? "-")</td>
+                                <td><strong>£@expense.AmountGBP.ToString("F2")</strong></td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(expense.StatusName)">
+                                        @expense.StatusName
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (expense.StatusName == "Draft")
+                                    {
+                                        <form method="post" asp-page-handler="Submit" class="d-inline">
+                                            <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-send"></i> Submit
+                                            </button>
+                                        </form>
+                                        <form method="post" asp-page-handler="Delete" class="d-inline">
+                                            <input type="hidden" name="expenseId" value="@expense.ExpenseId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this expense?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                No expenses found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Draft" => "bg-secondary",
+            "Submitted" => "bg-warning text-dark",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
