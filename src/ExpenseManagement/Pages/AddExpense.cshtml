@@ -1,0 +1,83 @@
+@page
+@model AddExpenseModel
+@{
+    ViewData["Title"] = "Add Expense";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-6">
+            <i class="bi bi-plus-circle text-success"></i> 
+            Add Expense
+        </h1>
+        <p class="text-muted">Submit a new expense claim</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Input.Amount" class="form-label">Amount (£)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">£</span>
+                            <input asp-for="Input.Amount" class="form-control" placeholder="0.00" step="0.01" min="0.01" required />
+                        </div>
+                        <span asp-validation-for="Input.Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.ExpenseDate" class="form-label">Date</label>
+                        <input asp-for="Input.ExpenseDate" type="date" class="form-control" required />
+                        <span asp-validation-for="Input.ExpenseDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.CategoryId" class="form-label">Category</label>
+                        <select asp-for="Input.CategoryId" class="form-select" required>
+                            <option value="">Select a category...</option>
+                            @foreach (var category in Model.Categories ?? Enumerable.Empty<ExpenseManagement.Models.ExpenseCategory>())
+                            {
+                                <option value="@category.CategoryId">@category.CategoryName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Input.CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.UserId" class="form-label">User</label>
+                        <select asp-for="Input.UserId" class="form-select" required>
+                            <option value="">Select a user...</option>
+                            @foreach (var user in Model.Users ?? Enumerable.Empty<ExpenseManagement.Models.User>())
+                            {
+                                <option value="@user.UserId">@user.UserName (@user.Email)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Input.UserId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Description" class="form-label">Description</label>
+                        <textarea asp-for="Input.Description" class="form-control" rows="3" placeholder="Enter a description for this expense..."></textarea>
+                        <span asp-validation-for="Input.Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-1"></i> Submit Expense
+                        </button>
+                        <a asp-page="/Expenses" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

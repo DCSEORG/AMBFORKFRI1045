@@ -1,0 +1,206 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-5">
+            <i class="bi bi-speedometer2 text-primary"></i> 
+            Expense Dashboard
+        </h1>
+        <p class="lead text-muted">Welcome to the Expense Management System</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">View Expenses</h6>
+                        <p class="mb-0 text-muted small">See all your expenses</p>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-list-ul text-primary fs-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-page="/Expenses" class="btn btn-primary w-100">
+                    <i class="bi bi-arrow-right me-1"></i> View Expenses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Add Expense</h6>
+                        <p class="mb-0 text-muted small">Submit a new expense</p>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-plus-circle text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-page="/AddExpense" class="btn btn-success w-100">
+                    <i class="bi bi-plus me-1"></i> Add Expense
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Approve Expenses</h6>
+                        <p class="mb-0 text-muted small">Review pending expenses</p>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-check-circle text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-page="/Approve" class="btn btn-warning w-100">
+                    <i class="bi bi-check2-all me-1"></i> Approve
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">AI Chat</h6>
+                        <p class="mb-0 text-muted small">Ask questions naturally</p>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-chat-dots text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-page="/Chat" class="btn btn-info w-100 text-white">
+                    <i class="bi bi-chat me-1"></i> Chat
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Recent Expenses</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentExpenses != null && Model.RecentExpenses.Any())
+                            {
+                                @foreach (var expense in Model.RecentExpenses.Take(5))
+                                {
+                                    <tr>
+                                        <td>@expense.ExpenseDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@expense.CategoryName</td>
+                                        <td>£@expense.AmountGBP.ToString("F2")</td>
+                                        <td>
+                                            <span class="badge @GetStatusBadgeClass(expense.StatusName)">
+                                                @expense.StatusName
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No expenses found</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a asp-page="/Expenses" class="btn btn-outline-primary btn-sm">View All Expenses</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="mb-0"><i class="bi bi-pie-chart text-success me-2"></i>Summary by Category</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.CategorySummary != null && Model.CategorySummary.Any())
+                            {
+                                @foreach (var summary in Model.CategorySummary)
+                                {
+                                    <tr>
+                                        <td>@summary.CategoryName</td>
+                                        <td>@summary.TotalExpenses</td>
+                                        <td>£@summary.TotalAmountGBP.ToString("F2")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">No data available</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Draft" => "bg-secondary",
+            "Submitted" => "bg-warning text-dark",
+            "Approved" => "bg-success",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
